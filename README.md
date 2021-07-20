@@ -19,28 +19,6 @@ Late assignments will not be accepted (for this project there is not a two day e
 Output should print to the screen and should follow the format in the example test cases. A deduction of 5 points will be applied to submissions that do not print to the screen. Utilize printcode() to ensure correct formatting.
 
 The generate_code() function has two parameters it receives from driver when called: the symbol table and the lexeme list. The first entry of the symbol table is main and the end of the table is marked with a entry with kind -1. When it is passed to generate_code(), all the entries of the symbol table are marked with value 1. The end of the lexeme list is marked by an entry with type -1. The lexeme list is first passed through a correctly implemented parse function so you can assume that there are no errors when it reaches generate_code().
-
-Rubric
-
-20 – compiles
-5 – LIT
-5 – RTN
-5 – NEG
-5 – ADD, SUB
-5 – MUL, DIV, MOD
-5 – ODD
-5 – EQL, NEQ, LSS, LEQ, GTR, GEQ
-5 – LOD
-5 – STO
-5 – CAL
-5 – INC
-5 – JMP
-5 – JPC
-5 – write
-5 – read
-5 – halt
-
-
  
 Appendix A:
 
