@@ -13,6 +13,8 @@ int code_index = 0;
 int jpc_index = 0;
 int jmp_index = 0;
 int table_index = 0;
+int sym_index;
+int initial_jmp = 0;
 lexeme *token;
 symbol *table;
 
@@ -54,7 +56,9 @@ void program()
 	emit(7, 0, 0);
 	block(0);
 	emit(9, 0, 3);
-	code[0].m = table[1].addr * 3;
+	// remark main
+	table[0].mark = 1;
+	code[0].m = initial_jmp * 3;
 }
 
 void block(int level)
@@ -63,7 +67,7 @@ void block(int level)
 	const_decl(level);
 	int num_var = var_decl(level);
 	proc_decl(level);
-	table[proc_index].addr = code_index;
+	initial_jmp = code_index;
 	emit(6, 0, num_var + 3);
 	statement(level);
 	// mark all symbols declared here
@@ -134,8 +138,6 @@ void proc_decl(int level)
 
 void statement(int level)
 {
-
-	/* const => 1 | var => 2 | proc => 3 */
 	if (token->type == identsym)
 	{
 		int index = find(level);
@@ -148,7 +150,7 @@ void statement(int level)
 		next_token(1);
 		int index = find(level);
 		next_token(1);
-		emit(5, level - table[index].level, table[index].level);
+		emit(5, level - table[index].level, table[index].val * 3);
 	}
 	else if (token->type == writesym)
 	{
@@ -201,7 +203,7 @@ void statement(int level)
 		emit(8, 0, 0);
 		statement(level);
 		emit(7, 0, jmp_index * 3);
-		code[jpc_index].m = code_index;
+		code[jpc_index].m = code_index * 3;
 	}
 }
 
@@ -228,9 +230,10 @@ void condition(int level)
 	else
 	{
 		expression(level);
+		int relop = token->type;
 		next_token(1);
 		expression(level);
-		switch(token->type)
+		switch(relop)
 		{
 			 case eqlsym: emit(2,0,8); break;
 			 case neqsym: emit(2,0,9); break;
@@ -348,21 +351,25 @@ void emit(int opcode, int l, int m)
     code_index++;
 }
 
-/**
-const => 1
-var => 2
-porc => 3
-*/
 int find(int level)
 {
 	int min = 100, index = 0;
 	for (int i = table_index; i >= 0; i--)
 	{
-		if (strcmp(table[i].name,token->name) == 0)
+		if (strcmp(table[i].name,token->name) == 0 && table[i].mark == 0
+		 		&&(level - table[i].level) < min)
 		{
+			min = level - table[i].level;
 			index = i;
 		}
 	}
+
+	if (index == 0)
+	{
+		printf("Error: Cannot find: %s\n", token->name);
+		exit(1);
+	}
+
 	return index;
 }
 
